@@ -1,0 +1,29 @@
+{
+    "files.associations": {
+        "\"*.html\"": "\"jinja-html\"",
+        "iostream": "cpp",
+        "chrono": "cpp",
+        "vector": "cpp",
+        "algorithm": "cpp",
+        "utility": "cpp",
+        "random": "cpp",
+        "initializer_list": "cpp",
+        "list": "cpp",
+        "xhash": "cpp",
+        "xstring": "cpp",
+        "xutility": "cpp",
+        "deque": "cpp",
+        "exception": "cpp",
+        "fstream": "cpp",
+        "functional": "cpp",
+        "map": "cpp",
+        "memory": "cpp",
+        "queue": "cpp",
+        "set": "cpp",
+        "sstream": "cpp",
+        "stack": "cpp",
+        "tuple": "cpp",
+        "unordered_map": "cpp",
+        "valarray": "cpp"
+    }
+}
