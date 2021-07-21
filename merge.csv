@@ -1,4 +1,4 @@
-Selection Sort,261953,258342,259970,258129
-Insertion Sort,192733,0,386881,174516
-Bubble Sort,1708964,266619,2752242,1622202
-STL Sort,2700,1697,1397,2396
+Selection Sort,5,5,5,5
+Insertion Sort,6,64,3,65
+Bubble Sort,1,5,1,5
+STL Sort,64,65,63,63

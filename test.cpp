@@ -1,26 +1,29 @@
 #include <bits/stdc++.h>
+#include <thread>
+#include <future>
 
 using namespace std;
 
-template <typename T> void printvec(vector<T> *v) {
-    for (std::vector<int>::iterator i=v->begin(); i!=v->end(); i++)
-        std::cout << *i << " ";
-    std::cout << std::endl;
-}
+int N = 0;
 
-int main() {
-    const size_t t2Size = 20;
-    vector<int> t2(t2Size);
-    for (int i = 0; i < t2Size; i++) t2[i] = i+1;
-    iter_swap(t2.begin() + 15, t2.begin() + 16);
-    printvec(&t2);
+void threadFunction(future<void> futureObj)
+{
+    cout << "Thread Start" << endl;
+    while (futureObj.wait_for(chrono::milliseconds(1)) == future_status::timeout)
+    {
+        N++;
+        // this_thread::sleep_for(chrono::milliseconds(1000));
+    }
+    cout << "Thread End" << endl;
 }
-
-// int main() {
-//   int arr[] = {1,2,3,4,5,6,7,8,9};
-//   std::vector<int> * v = new std::vector<int>(arr, arr + sizeof(arr) / sizeof(arr[0]));
-//   iter_swap(v->begin(),v->begin()+1);
-//   for (std::vector<int>::iterator i=v->begin(); i!=v->end(); i++)
-//     std::cout << *i << " ";
-//   std::cout << std::endl;
-// }
+int main()
+{
+    promise<void> exitSignal;
+    future<void> futureObj = exitSignal.get_future();
+    thread th(&threadFunction, move(futureObj));
+    this_thread::sleep_for(chrono::seconds(3));
+    exitSignal.set_value();
+    th.join();
+    cout << N;
+    return 0;
+}

@@ -24,6 +24,10 @@
         "stack": "cpp",
         "tuple": "cpp",
         "unordered_map": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "future": "cpp",
+        "thread": "cpp",
+        "xiosbase": "cpp",
+        "type_traits": "cpp"
     }
 }

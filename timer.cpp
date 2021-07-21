@@ -1,6 +1,8 @@
 #include <bits/stdc++.h>
 #include <chrono>
 #include <random>
+#include <future>
+#include <thread>
 
 using namespace std;
 
@@ -65,6 +67,7 @@ int randomNumBetweenVals(int v1, int v2) {
 }
 
 const size_t N = 10000;
+vector<vector<int>> tests;
 
 vector<vector<int>> setupArrays() {  // Random, nearly sorted, reversed, few unique
     vector<vector<int>> tests;
@@ -92,34 +95,37 @@ vector<vector<int>> setupArrays() {  // Random, nearly sorted, reversed, few uni
     return tests;
 }
 
+vector<vector<int>> copyArrays = setupArrays();
+
 void refreshArray(vector<int> *arr, int whicharr) {
     arr->resize(N);
-    switch (whicharr) {
-    case 0:
-        for (int i = 0; i < N; i++) (*arr)[i] = i+1;
-        shuffle(arr->begin(), arr->end(), rng);
-        break;
+    *arr = copyArrays[whicharr];
+    // switch (whicharr) {
+    // case 0:
+    //     for (int i = 0; i < N; i++) (*arr)[i] = i+1;
+    //     shuffle(arr->begin(), arr->end(), rng);
+    //     break;
     
-    case 1:
-        for (int i = 0; i < N; i++) (*arr)[i] = i+1;
-        for (int i = 0; i < N/4; i++) {
-            int pos = randomNumBetweenVals(1, N-1);
-            iter_swap(arr->begin() + pos, arr->begin() + pos - 1);
-        }
-        break;
+    // case 1:
+    //     for (int i = 0; i < N; i++) (*arr)[i] = i+1;
+    //     for (int i = 0; i < N/4; i++) {
+    //         int pos = randomNumBetweenVals(1, N-1);
+    //         iter_swap(arr->begin() + pos, arr->begin() + pos - 1);
+    //     }
+    //     break;
     
-    case 2:
-        for (int i = 0; i < N; i++) (*arr)[i] = N - i;
-        break;
+    // case 2:
+    //     for (int i = 0; i < N; i++) (*arr)[i] = N - i;
+    //     break;
 
-    case 3:
-        for (int i = 0; i < N; i++) (*arr)[i] = (i / 10) + 1;
-        shuffle(arr->begin(), arr->end(), rng);
-        break;
+    // case 3:
+    //     for (int i = 0; i < N; i++) (*arr)[i] = (i / 10) + 1;
+    //     shuffle(arr->begin(), arr->end(), rng);
+    //     break;
     
-    default:
-        break;
-    }
+    // default:
+    //     break;
+    // }
 }
 
 bool isarrSorted(vector<int> *arr) {
@@ -133,10 +139,17 @@ bool isarrSorted(vector<int> *arr) {
     return true;
 }
 
+void functionRunner(future<void> ender, int i, int j, int &times) {
+    while (ender.wait_for(chrono::microseconds(1)) == future_status::timeout) {
+        (*funcs[i])(&tests[j]);
+        refreshArray(&tests[j], j);
+        times++;
+    }
+}
+
 int main() {
     int numFuncs = sizeof(funcs) / sizeof(funcs[0]);
-    int repeats = 10;
-    vector<vector<int>> tests;
+    int repeats = 3;
     vector<vector<long long>> output(numFuncs);
     vector<long long> current(tests.size());
     for (int i = 0; i < numFuncs; i++) {  // For each sorting function
@@ -145,12 +158,16 @@ int main() {
             current.clear();
             for (int k = 0; k < repeats; k++) {  // For each repeat
                 cout << "Running function '" << names[i] << "', test " << j+1 << ", repeat " << k+1 << "\n";
-                auto start = chrono::high_resolution_clock::now();
-                (*funcs[i])(&tests[j]);
-                auto end = chrono::high_resolution_clock::now();
-                if (!isarrSorted(&tests[j])) throw names[i] + " failed!";
-                refreshArray(&tests[j], j);
-                current.push_back(chrono::duration_cast<chrono::microseconds>(end - start).count());
+                int times = 0;
+                promise<void> exitSignal;
+                future<void> futureObj = exitSignal.get_future();
+                thread th(&functionRunner, move(futureObj), i, j, ref(times));
+                this_thread::sleep_for(chrono::seconds(1));
+                exitSignal.set_value();
+                th.join();
+
+                // if (!isarrSorted(&tests[j])) throw names[i] + " failed!";
+                current.push_back(times);
             }
             output[i].push_back(accumulate(current.begin(), current.end(), 0) / current.size());
         }
