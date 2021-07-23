@@ -52,12 +52,168 @@ void bubbleSort(vector<int> *arr) {
                 iter_swap(arr->begin() + j, arr->begin() + j+1);
 }
 
+void oddEvenSort(vector<int> *arr) {
+    bool sorted = false;
+    int n = arr->size();
+    while (!sorted) {
+        sorted = true;
+        for (int i = 1; i < n - 1; i += 2) {
+            if ((*arr)[i] > (*arr)[i + 1]) {
+                iter_swap(arr->begin() + i, arr->begin() + i + 1);
+                sorted = false;
+            }
+        }
+        for (int i = 0; i < n - 1; i += 2) {
+            if ((*arr)[i] > (*arr)[i + 1]) {
+                iter_swap(arr->begin() + i, arr->begin() + i + 1);
+                sorted = false;
+            }
+        }
+    }
+}
+
+void gnomeSort(vector<int> *arr) {
+    int n = arr->size();
+    int pos = 0;
+    while (pos < n) {
+        if (pos == 0 || (*arr)[pos] >= (*arr)[pos - 1])
+            pos++;
+        else {
+            iter_swap(arr->begin() + pos, arr->begin() + pos - 1);
+            pos--;
+        }
+    }
+}
+
+void combSort(vector<int> *arr) {
+    int n = arr->size(), gap = arr->size();
+    float shrink = 1.3;
+    bool sorted = false;
+
+    while (sorted == false) {
+        gap = floor(gap / shrink);
+        if (gap <= 1) {
+            gap = 1;
+            sorted = true;
+        }
+
+        for (int i = 0; i + gap < n; i++) {
+            if ((*arr)[i] > (*arr)[i + gap]) {
+                iter_swap(arr->begin() + i, arr->begin() + i + gap);
+                sorted = false;
+            }
+        }
+    }
+}
+
+void cocktailShakerSort(vector<int> *arr) {
+    bool swapped;
+    int n = arr->size();
+    do {
+        swapped = false;
+        for (int i = 0; i < n - 1; i++) {
+            if ((*arr)[i] > (*arr)[i + 1]) {
+                iter_swap(arr->begin() + i, arr->begin() + i + 1);
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
+
+        for (int i = 0; i < n - 1; i++) {
+            if ((*arr)[i] > (*arr)[i + 1]) {
+                iter_swap(arr->begin() + i, arr->begin() + i + 1);
+                swapped = true;
+            }
+        }
+    } while (swapped);
+}
+
 void defaultsort(vector<int> *arr) {
     sort(arr->begin(), arr->end());
 }
 
-void (*funcs[])(vector<int> *arr) = { selectionSort, insertionSort, bubbleSort, defaultsort };
-std::string names[] = {"Selection Sort", "Insertion Sort", "Bubble Sort", "STL Sort"};
+void strandSortIter(vector<int> *finalarr, bool *first, vector<int> *arr) {
+    if (arr->size() == 0) return;
+    vector<int> sublist;
+
+    sublist.push_back((*arr)[0]);
+    arr->erase(arr->begin());
+
+    int i = 0;
+    for (int j = 0; j < arr->size(); j++) {
+        if ((*arr)[j] > sublist[i]) {
+            sublist.push_back((*arr)[j]);
+            arr->erase(arr->begin() + j);
+            j--;
+            i++;
+        }
+    }
+
+    if (!(*first)) {
+        for (i = 0; i < sublist.size(); i++) {
+            finalarr->push_back(sublist[i]);
+        }
+        (*first) = true;
+    } else {
+        int subend = sublist.size() - 1;
+        int finalarrstart = 0;
+        while (sublist.size() > 0) {
+            if (sublist[subend] > (*finalarr)[finalarrstart]) {
+                finalarrstart++;
+            } else {
+                finalarr->insert(finalarr->begin() + finalarrstart, sublist[subend]);
+                sublist.erase(sublist.begin() + subend);
+                subend--;
+                finalarrstart = 0;
+            }
+        }
+    }
+    strandSortIter(finalarr, first, arr);
+}
+
+void strandSort(vector<int> *arr) {
+    bool first = false;
+    vector<int> *response = new vector<int>();
+    strandSortIter(response, &first, arr);
+    arr->swap(*response);
+}
+
+void cycleSort(vector<int> *arr) {
+    size_t n = arr->size();
+    for (int i = 0; i < n - 1; i++) {
+        int item = (*arr)[i];
+        int pos = i;
+        for (int j = i + 1; j < n; j++) {
+            if ((*arr)[j] < item)
+                pos++;
+        }
+        if (pos == i) continue;
+
+        while (item == (*arr)[pos]) pos++;
+
+        int _temp = item;
+        item = (*arr)[pos];
+        (*arr)[pos] = _temp;
+
+        while (pos != i) {
+            pos = i;
+            for (int j = i + 1; j < n; j++) {
+                if ((*arr)[j] < item)
+                    pos++;
+            }
+
+            while (item == (*arr)[pos]) pos++;
+            int _temp = item;
+            item = (*arr)[pos];
+            (*arr)[pos] = _temp;
+        }
+    }
+}
+
+// Implement best case (presorted) and also number of writes. Divide sorts / sec by writes?
+
+void (*funcs[])(vector<int> *arr) = { cycleSort };  // cocktailShakerSort, selectionSort, insertionSort, bubbleSort, oddEvenSort, gnomeSort, defaultsort, combSort, strandSort
+std::string names[] = { "Cycle Sort" };  // "Cocktail Shaker Sort", "Selection Sort", "Insertion Sort", "Bubble Sort", "Odd-Even Sort", "Gnome Sort", "STL Sort (Introsort + Insertion sort)", "Comb Sort", "Strand Sort"
 static random_device rd;
 static mt19937 rng {rd()};
 
@@ -100,51 +256,6 @@ vector<vector<int>> copyArrays = setupArrays();
 void refreshArray(vector<int> *arr, int whicharr) {
     arr->resize(N);
     *arr = copyArrays[whicharr];
-    // switch (whicharr) {
-    // case 0:
-    //     for (int i = 0; i < N; i++) (*arr)[i] = i+1;
-    //     shuffle(arr->begin(), arr->end(), rng);
-    //     break;
-    
-    // case 1:
-    //     for (int i = 0; i < N; i++) (*arr)[i] = i+1;
-    //     for (int i = 0; i < N/4; i++) {
-    //         int pos = randomNumBetweenVals(1, N-1);
-    //         iter_swap(arr->begin() + pos, arr->begin() + pos - 1);
-    //     }
-    //     break;
-    
-    // case 2:
-    //     for (int i = 0; i < N; i++) (*arr)[i] = N - i;
-    //     break;
-
-    // case 3:
-    //     for (int i = 0; i < N; i++) (*arr)[i] = (i / 10) + 1;
-    //     shuffle(arr->begin(), arr->end(), rng);
-    //     break;
-    
-    // default:
-    //     break;
-    // }
-}
-
-bool isarrSorted(vector<int> *arr) {
-    int prev = -1;
-    for (const auto &item : *arr) {
-        if (item < prev) {
-            return false;
-        }
-        prev = item;
-    }
-    return true;
-}
-
-void functionRunner(future<void> ender, int i, int j, int &times) {
-    while (ender.wait_for(chrono::microseconds(1)) == future_status::timeout) {
-        (*funcs[i])(&tests[j]);
-        refreshArray(&tests[j], j);
-        times++;
-    }
 }
 
 int main() {
@@ -159,14 +270,19 @@ int main() {
             for (int k = 0; k < repeats; k++) {  // For each repeat
                 cout << "Running function '" << names[i] << "', test " << j+1 << ", repeat " << k+1 << "\n";
                 int times = 0;
-                promise<void> exitSignal;
-                future<void> futureObj = exitSignal.get_future();
-                thread th(&functionRunner, move(futureObj), i, j, ref(times));
-                this_thread::sleep_for(chrono::seconds(1));
-                exitSignal.set_value();
-                th.join();
+                atomic<bool> threadFinished(false);
+                thread t([&threadFinished] {
+                    this_thread::sleep_for(chrono::seconds(1));
+                    threadFinished = true;
+                });
+                while (!threadFinished) {
+                    (*funcs[i])(&tests[j]);
+                    if (!is_sorted(tests[j].begin(), tests[j].end())) throw names[i] + " failed!";
+                    refreshArray(&tests[j], j);
+                    times++;
+                }
+                t.join();
 
-                // if (!isarrSorted(&tests[j])) throw names[i] + " failed!";
                 current.push_back(times);
             }
             output[i].push_back(accumulate(current.begin(), current.end(), 0) / current.size());
@@ -174,7 +290,7 @@ int main() {
     }
 
     ofstream outfile;
-    outfile.open("merge.csv");
+    outfile.open("merge.csv", ios_base::app);
     for (int i = 0; i < numFuncs; i++) {  // For each sorting function
         outfile << names[i] << ",";
         for (int j = 0; j < tests.size(); j++) {  // For each test

@@ -1,4 +1,10 @@
-Selection Sort,5,5,5,5
-Insertion Sort,6,64,3,65
 Bubble Sort,1,5,1,5
-STL Sort,64,65,63,63
+Cocktail Shaker Sort,1,3063,1,20686
+Comb Sort,228,695,485,769
+Cycle Sort,2,5,4,6
+Gnome Sort,2,6438,1,20235
+Insertion Sort,6,7283,3,13297
+Odd-Even Sort,1,4029,1,21340
+STL Sort (Introsort + Insertion sort),422,744,886,888
+Selection Sort,5,5,4,5
+Strand Sort,11,21,4,8

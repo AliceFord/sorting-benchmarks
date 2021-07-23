@@ -12,18 +12,27 @@ void threadFunction(future<void> futureObj)
     while (futureObj.wait_for(chrono::milliseconds(1)) == future_status::timeout)
     {
         N++;
-        // this_thread::sleep_for(chrono::milliseconds(1000));
     }
     cout << "Thread End" << endl;
 }
+
 int main()
 {
-    promise<void> exitSignal;
-    future<void> futureObj = exitSignal.get_future();
-    thread th(&threadFunction, move(futureObj));
-    this_thread::sleep_for(chrono::seconds(3));
-    exitSignal.set_value();
-    th.join();
+    // promise<void> exitSignal;
+    // future<void> futureObj = exitSignal.get_future();
+    // thread th(&threadFunction, move(futureObj));
+    // this_thread::sleep_for(chrono::seconds(1));
+    // exitSignal.set_value();
+    // th.join();
+    atomic<bool> done(false);
+
+    thread t([&done] {
+        this_thread::sleep_for(chrono::seconds(1));
+        done = true;
+    });
+
+    while (!done) N++;
+    t.join();
     cout << N;
     return 0;
 }

@@ -19,19 +19,18 @@ with open("data.csv") as csvfile:
             else:
                 labels.append(item)
 
-plotdata = np.array(plotdata) / 1000
+plotdata = np.array(plotdata)
 
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 plots = [ax1, ax2, ax3, ax4]
 titles = ["Random starting array", "Nearly sorted starting array", "Reversed starting array", "Few unique starting array"]
-ymax = 1000
 
 for i in range(4):
     ax = plots[i]
     ax.set_xlabel("Sorting Function")
-    ax.set_ylabel("Time (ms)")
+    ax.set_ylabel("Successful sorts in 1s")
     ax.set_title(titles[i])
-    ax.set_ylim(0, ymax)
+    ax.set_ylim(0, np.amax(plotdata[:,i]) + 100)
 
     ax.bar(labels, plotdata[:,i])
 

@@ -1,6 +1,12 @@
 all:
-	g++ timer.cpp -o timer
-	timer
+	g++.exe timer.cpp -o timer
+	./timer
+	python flatten.py
+	python plotter.py
+
+v1:
+	g++.exe timer.cpp -o timer
+	./timer
 	python mergedata.py
 	python plotter.py
 
